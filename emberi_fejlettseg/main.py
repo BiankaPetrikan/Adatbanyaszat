@@ -447,26 +447,6 @@ def update_histogram(selected_year, selected_variable, selected_bins):
     return fig
 
 
-# Debug kísérlet volt
-# def update_country_list(selected_level):
-#     print(f"Selected level: {selected_level}")
-#     print(f"Available levels: {fejlettseg['Human Development Groups'].unique()}")
-#
-#     # Szűrés a kiválasztott fejlettségi szint szerint
-#     filtered_data = fejlettseg[fejlettseg['Human Development Groups'] == selected_level]
-#
-#     # Az országok és HDI rangsorok kinyerése, alfabetikus sorrendbe rendezve
-#     countries_and_ranks = filtered_data[['Country', 'HDI Rank (2021)']].sort_values(by='Country')
-#
-#     # Az eredmény megjelenítése listaként
-#     country_list = [
-#         html.P(f"{row['Country']} - {row['HDI Rank (2021)']}", style={'fontSize': '16px'})
-#         for _, row in countries_and_ranks.iterrows()
-#     ]
-#
-#     return country_list
-#
-
 
 if __name__ == '__main__':
     app.run_server(debug=True, use_reloader=False)
