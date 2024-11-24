@@ -35,28 +35,6 @@ fejlettseg = clean_data(fejlettseg)
 fejlettseg_szintek = fejlettseg['Human Development Groups'].unique()
 
 # Adatok előkészítése az 5. feladathoz
-# hdi_columns = [col for col in fejlettseg.columns if 'Human Development Index' in col]
-# long_data = fejlettseg.melt(id_vars=['Country'],
-#                       value_vars=hdi_columns,
-#                       var_name='Year',
-#                       value_name='HDI')
-#
-# long_data['Year'] = long_data['Year'].str.extract(r'(\d{4})').astype(int)
-
-# df_long = pd.melt(
-#     fejlettseg,
-#     id_vars=["Country"],  # Az "országok" azonosítónak maradnak
-#     var_name="Year",  # Az oszlopnevek kerülnek ide
-#     value_name="Human Development Index"  # Értékek ide kerülnek
-# )
-#
-# # Évszámok kinyerése az oszlopnevekből
-# #df_long["Year"] = df_long["Year"].str.extract(r"(\d+)").astype(int)
-# df_long["Year"] = df_long["Year"].str.extract(r"(\d+)")  # Évszámok kinyerése
-# df_long = df_long.dropna(subset=["Year"])  # NaN sorok eltávolítása
-# df_long["Year"] = df_long["Year"].astype(int)
-
-# Adatok hosszú formátumra alakítása
 df_long = pd.melt(
     fejlettseg,
     id_vars=["Country"],
@@ -64,7 +42,6 @@ df_long = pd.melt(
     value_name="Human Development Index"
 )
 
-# Évszámok kinyerése és tisztítása
 df_long["Year"] = df_long["Year"].str.extract(r"(\d{4})")
 df_long = df_long.dropna(subset=["Year"])
 df_long["Year"] = df_long["Year"].astype(int)
@@ -72,38 +49,34 @@ df_long["Year"] = df_long["Year"].astype(int)
 df_long = df_long.sort_values(by="Year")
 
 #6.feladat előkészítés
-# Év oszlopok kinyerése
-years6 = [str(year) for year in range(1990, 2022)]
-
+years = [str(year) for year in range(1990, 2022)]
 
 # Újrapróbálkozás átkonvertált adatszerkezettel
-df = pd.read_csv(os.path.join(current_dir, 'emberi_fejlettseg_.csv'))
-
-numerical_columns = df.select_dtypes(include=['float64', 'int64']).columns
-for col in numerical_columns:
-    df[col].fillna(df[col].mean(), inplace=True)
-
-categorical_columns = df.select_dtypes(include=['object']).columns
-for col in categorical_columns:
-    df[col].fillna('Unknown', inplace=True)
-
-df.drop_duplicates(inplace=True)
+# df = pd.read_csv(os.path.join(current_dir, 'emberi_fejlettseg_jo.csv'))
+#
+# numerical_columns = df.select_dtypes(include=['float64', 'int64']).columns
+# for col in numerical_columns:
+#     df[col].fillna(df[col].mean(), inplace=True)
+#
+# categorical_columns = df.select_dtypes(include=['object']).columns
+# for col in categorical_columns:
+#     df[col].fillna('Unknown', inplace=True)
+#
+# df.drop_duplicates(inplace=True)
 
 
 # A Layout
 app.layout = html.Div(
+    style={'backgroundColor': '#e8f5e9', 'padding': '15px'},
     children=[
-        # html.Div(
-        #     html.Img(src=f'/assets/cover_image.jpg', style={'width': '100%', 'max-width': '600px', 'margin': '0 auto'}),
-        #     style={'textAlign': 'center', 'marginBottom': '20px'}
-        # ),
+
     html.H1('Emberi fejlettség elemzése',
         style={
             'color': 'grey',
             'fontSize': '40px',
             'textAlign': 'center'
         }),
-    #html.H2('Lehet hogy kitöröljük ezt'),
+
     html.Div(
         children=[
             html.Div(style={
@@ -149,12 +122,10 @@ app.layout = html.Div(
                 dcc.Dropdown(
                     id='development-level-dropdown',
                     options=[{'label': szint, 'value': szint} for szint in fejlettseg_szintek],
-                    value=None,  # Kezdetben nem választott érték
-                    placeholder="Válassz fejlettségi szintet",  # Placeholder szöveg
-#                   clearable=False
+                    value=None,
+                    placeholder="Válassz fejlettségi szintet",
                 ),
 
-                # Az országok és helyezésük megjelenítése
                 html.Div(id='country-list', style={'marginTop': '20px'})
             ],
             style={
@@ -219,6 +190,51 @@ app.layout = html.Div(
             }
         ),
 
+        # html.Div(
+        #     children=[
+        #         html.H3('országok szerint mindjárt mindjárt valami',
+        #                 style={
+        #                     'color': '#007D69'
+        #                 }
+        #                 ),
+        #
+        #         dcc.Slider(
+        #             id='year-slider',
+        #             min=df['Years'].min(),
+        #             max=df['Years'].max(),
+        #             step=1,
+        #             marks={year: str(year) for year in df['Years'].unique()},
+        #             value=df['Years'].min(),
+        #         ),
+        #         # Legördülő lista a változó kiválasztásához
+        #         dcc.Dropdown(
+        #             id='variable-dropdown',
+        #             options=[{'label': col, 'value': col} for col in df.columns if col not in ['Country', 'Years']],
+        #             value='Human Development Index',  # alapértelmezett választás
+        #             style={'width': '50%'}
+        #         ),
+        #         # Csúszka az osztályközök számának kiválasztásához
+        #         dcc.Slider(
+        #             id='bin-slider',
+        #             min=5,
+        #             max=50,
+        #             step=1,
+        #             marks={i: str(i) for i in range(5, 51, 5)},
+        #             value=10,
+        #         ),
+        #         # A diagram, amely a kiválasztott adatokat mutatja
+        #         dcc.Graph(id='histogram')
+        #
+        #
+        #     ],
+        #     style={
+        #         'borderRadius': '15px',
+        #         'margin': '40px',
+        #         'padding': '40px',
+        #         'backgroundColor': '#f0f0f0',
+        #         'boxShadow': '5px 5px 10px rgba(0, 0, 0, 0.2)',
+        #     }
+        # ),
         html.Div(
             children=[
                 html.H3('országok szerint mindjárt mindjárt valami',
@@ -227,32 +243,50 @@ app.layout = html.Div(
                         }
                         ),
 
-                dcc.Slider(
-                    id='year-slider',
-                    min=df['Years'].min(),
-                    max=df['Years'].max(),
-                    step=1,
-                    marks={year: str(year) for year in df['Years'].unique()},
-                    value=df['Years'].min(),
-                ),
-                # Legördülő lista a változó kiválasztásához
-                dcc.Dropdown(
-                    id='variable-dropdown',
-                    options=[{'label': col, 'value': col} for col in df.columns if col not in ['Country', 'Years']],
-                    value='Human Development Index',  # alapértelmezett választás
-                    style={'width': '50%'}
-                ),
-                # Csúszka az osztályközök számának kiválasztásához
-                dcc.Slider(
-                    id='bin-slider',
-                    min=5,
-                    max=50,
-                    step=1,
-                    marks={i: str(i) for i in range(5, 51, 5)},
-                    value=10,
-                ),
-                # A diagram, amely a kiválasztott adatokat mutatja
-                dcc.Graph(id='histogram')
+                # Év csúszka
+                html.Div([
+                    html.Label("Év választása:"),
+                    dcc.Slider(
+                        id='year-slider',
+                        min=1990,
+                        max=2021,
+                        step=1,
+                        value=2021,
+                        marks={year: str(year) for year in range(1990, 2022)},
+                        tooltip={"placement": "bottom", "always_visible": True}
+                    )
+                ], style={'width': '80%', 'padding': '20px'}),
+
+                # Változó legördülő lista
+                html.Div([
+                    html.Label("Változó választása:"),
+                    dcc.Dropdown(
+                        id='variable-dropdown',
+                        options=[{'label': col, 'value': col} for col in fejlettseg.columns if
+                                 'Life Expectancy' in col or 'Human Development Index' in col],
+                        value='Human Development Index (2021)',  # Kezdő érték
+                        style={'width': '50%'}
+                    )
+                ], style={'padding': '20px'}),
+
+                # Osztályok száma csúszka
+                html.Div([
+                    html.Label("Osztályok száma:"),
+                    dcc.Slider(
+                        id='bins-slider',
+                        min=5,
+                        max=50,
+                        step=1,
+                        value=10,
+                        marks={i: str(i) for i in range(5, 51, 5)},
+                        tooltip={"placement": "bottom", "always_visible": True}
+                    )
+                ], style={'width': '50%', 'padding': '20px'}),
+
+                # Grafikák
+                html.Div([
+                    dcc.Graph(id='distribution-plot')
+                ], style={'padding': '20px'})
 
 
             ],
@@ -265,15 +299,6 @@ app.layout = html.Div(
             }
         ),
 
-
-#     dcc.Dropdown(
-#         id='Country',
-#         options=[
-#             {'label': country, 'value': country} for country in fejlettseg['Country Name'].unique()
-#         ]
-#     ),
-#     html.Br(),
-#     html.Div(id='report'),
     html.Br(),
     html.Br(),
     dbc.Tabs([
@@ -281,28 +306,17 @@ app.layout = html.Div(
             html.Ul([
                 html.Br(),
                 html.Li('Név: Petrikán Bianka'),
+                html.Li('Neptun kód: JPW9G0'),
 
-                html.Li([
-                    'Forrás: ',
-                    html.A(
-                        'https://datacatalog.worldbank.org/dataset/poverty-and-equity-database',
-                        'https://datacatalog.worldbank.org/dataset/poverty-and-equity-database'
-                    )
-                ])
             ])
         ], label='Személyes adatok'),
         dbc.Tab([
             html.Ul([
                 html.Br(),
-                html.Li([
-                    # 'GitHub repo: ',
-                    # html.A(
-                    #     'https://github.com/basictask/Adatbanyaszat',
-                    #     'https://github.com/basictask/Adatbanyaszat'
-                    # )
+                html.Li('A projekt célja: User interface-en keresztül elemezni és bemutatni az emberi fejlettséget különböző országokban és különböző mutatók szerint.'),
                 html.Li('Időbeli lefedettség: 1990 - 2021'),
                 html.Li('Frissítési gyakoriság: Évenként'),
-                ])
+
             ])
         ], label='Projekt információk')
     ]),
@@ -375,27 +389,6 @@ def update_table(selected_country):
         return table
 
 # 5. feladat
-# @app.callback(
-#     Output('hdi-line-chart', 'figure'),
-#     Input('country-dropdown-5', 'value')
-# )
-# def update_chart(selected_countries):
-#     if not selected_countries:
-#         return px.line(title="Válassz országokat a megjelenítéshez")
-#
-#     # Adatok szűrése a kiválasztott országokra
-#     filtered_data = long_data[long_data['Country'].isin(selected_countries)]
-#
-#     # Diagram készítése
-#     fig = px.line(
-#         filtered_data,
-#         x='Year',
-#         y='HDI',
-#         color='Country',
-#         labels={'HDI': 'Human Development Index', 'Year': 'Év'},
-#         title="Human Development Index alakulása"
-#     )
-#     return fig
 
 @app.callback(
     Output('hdi-graph', 'figure'),
@@ -426,26 +419,45 @@ def update_graph(selected_countries):
     return fig
 
 #6. feladat
+# @app.callback(
+#     Output('histogram', 'figure'),
+#     [Input('year-slider', 'value'),
+#      Input('variable-dropdown', 'value'),
+#      Input('bin-slider', 'value')]
+# )
+# def update_histogram(selected_year, selected_variable, selected_bins):
+#
+#     filtered_df = df[df['Years'] == selected_year]
+#
+#     data = filtered_df[selected_variable]
+#
+#     fig = px.histogram(filtered_df, x=selected_variable, nbins=selected_bins,
+#                        title=f'{selected_variable} eloszlása {selected_year}-ban/ben')
+#
+#     # A diagram visszaadása
+#     return fig
+
+#6.feladat
 @app.callback(
-    Output('histogram', 'figure'),
+    Output('distribution-plot', 'figure'),
     [Input('year-slider', 'value'),
      Input('variable-dropdown', 'value'),
-     Input('bin-slider', 'value')]
+     Input('bins-slider', 'value')]
 )
-def update_histogram(selected_year, selected_variable, selected_bins):
-    # Szűrés az adott év és országok alapján
-    filtered_df = df[df['Years'] == selected_year]
+def update_plot(selected_year, selected_variable, bins):
+    # Szűrés az adatok alapján
+    filtered_df = df[['Country', selected_variable, str(selected_year)]].dropna()
 
-    # A kiválasztott változó adatai
-    data = filtered_df[selected_variable]
+    # Nevezze át a kiválasztott oszlopot a megjelenítéshez
+    filtered_df = filtered_df.rename(columns={str(selected_year): 'Year_Value'})
 
-    # Gyakorisági diagram generálása
-    fig = px.histogram(filtered_df, x=selected_variable, nbins=selected_bins,
-                       title=f'{selected_variable} eloszlása {selected_year}-ban/ben')
-
-    # A diagram visszaadása
+    # Ábrázolás
+    fig = px.histogram(
+        filtered_df, x='Year_Value', color='Country', nbins=bins,
+        labels={'Year_Value': selected_variable},
+        title=f"{selected_variable} eloszlása {selected_year} évben"
+    )
     return fig
-
 
 
 if __name__ == '__main__':
