@@ -15,7 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-current_dir = os.path.dirname(os.path.abspath(__file__))  # Aktuális script mappája
+current_dir = os.path.dirname(os.path.abspath(__file__))
 fejlettseg = pd.read_csv(os.path.join(current_dir, '1_emberi_fejlettseg.csv'))
 
 
@@ -67,47 +67,47 @@ years = [str(year) for year in range(1990, 2022)]
 
 # A Layout
 app.layout = html.Div(
-    style={'backgroundColor': '#e8f5e9', 'padding': '15px'},
+    style={'backgroundColor': '#007D69', 'padding': '15px'},
     children=[
 
     html.H1('Emberi fejlettség elemzése',
         style={
-            'color': 'grey',
+            'color': 'white',
             'fontSize': '40px',
             'textAlign': 'center'
         }),
 
-    html.Div(
-        children=[
-            html.Div(style={
-                'width': '8px',
-                'height': '8px',
-                'backgroundColor': 'grey',
-                'borderRadius': '50%',
-                'display': 'inline-block',
-                'verticalAlign': 'middle',
-                'marginBottom': '80px'
-            }),
-            html.Div(style={
-                'height': '1px',
-                'backgroundColor': 'grey',
-                'width': '80%',
-                'display': 'inline-block',
-                'verticalAlign': 'middle',
-                'marginBottom': '80px'
-            }),
-            html.Div(style={
-                'width': '8px',
-                'height': '8px',
-                'backgroundColor': 'grey',
-                'borderRadius': '50%',
-                'display': 'inline-block',
-                'verticalAlign': 'middle',
-                'marginBottom': '80px'
-            }),
-        ],
-        style={'textAlign': 'center', 'marginTop': '20px'}
-    ),
+    # html.Div(
+        # children=[
+        #     html.Div(style={
+        #         'width': '8px',
+        #         'height': '8px',
+        #         'backgroundColor': 'grey',
+        #         'borderRadius': '50%',
+        #         'display': 'inline-block',
+        #         'verticalAlign': 'middle',
+        #         'marginBottom': '80px'
+        #     }),
+        #     html.Div(style={
+        #         'height': '1px',
+        #         'backgroundColor': 'grey',
+    #             'width': '80%',
+    #             'display': 'inline-block',
+    #             'verticalAlign': 'middle',
+    #             'marginBottom': '80px'
+    #         }),
+    #         html.Div(style={
+    #             'width': '8px',
+    #             'height': '8px',
+    #             'backgroundColor': 'grey',
+    #             'borderRadius': '50%',
+    #             'display': 'inline-block',
+    #             'verticalAlign': 'middle',
+    #             'marginBottom': '80px'
+    #         }),
+    #     ],
+    #     style={'textAlign': 'center', 'marginTop': '20px'}
+    # ),
 
 
         html.Div(
@@ -148,7 +148,7 @@ app.layout = html.Div(
                 dcc.Dropdown(
                     id='country-dropdown',
                     options=[{'label': country, 'value': country} for country in fejlettseg['Country'].unique()],
-                    value=None,  # Kezdetben nincs kiválasztott ország
+                    value=None,
                     placeholder="Válassz országot",
                 ),
                 html.Div(id='country-table'),
@@ -237,7 +237,7 @@ app.layout = html.Div(
         # ),
         html.Div(
             children=[
-                html.H3('országok szerint mindjárt mindjárt valami',
+                html.H3('Gyakorisági diagram',
                         style={
                             'color': '#007D69'
                         }
@@ -342,7 +342,7 @@ app.layout = html.Div(
 
 def update_country_list(selected_szint):
     if selected_szint is None:
-        return []  # Ha nincs kiválasztva semmi, ne jelenjen meg semmi
+        return []
     else:
         filtered_data = fejlettseg[fejlettseg['Human Development Groups'] == selected_szint]
         countries_and_ranks = filtered_data[['Country', 'HDI Rank (2021)']].sort_values(by='Country')
@@ -356,37 +356,34 @@ def update_country_list(selected_szint):
 )
 def update_table(selected_country):
     if selected_country is None:
-        return []  # Ha nincs kiválasztva semmi, ne jelenjen meg semmi
+        return []
     else:
-        # Szűrjük az adatokat a kiválasztott országra
         country_data = fejlettseg[fejlettseg['Country'] == selected_country]
 
-        # Az oszlopok, amelyek dátumot tartalmaznak (évszámok), reguláris kifejezéssel
         date_columns = [col for col in country_data.columns if re.match(r"^.*\(\d{4}\)$", col)]
 
-        # Levágjuk az évszámot az oszlopok nevéről (pl. "Human Development Index (1990)" -> "Human Development Index")
         indicator_columns = list(set([re.sub(r"\(\d{4}\)$", "", col) for col in date_columns]))
 
-        # Készítjük el a táblázatot az évekkel
         years = [str(year) for year in range(1990, 2022)]
 
-        # Készítsük el az adatokat a táblázathoz
         data_for_table = []
 
         for indicator in indicator_columns:
-            row = [indicator]  # Kezdjük a mutató nevével
+            row = [indicator]
             for year in years:
                 column_name = f"{indicator} ({year})"
                 if column_name in date_columns:
                     row.append(country_data[column_name].values[0])
                 else:
-                    row.append(None)  # Ha nincs ilyen oszlop, hagyjuk üresen
+                    row.append(None)
             data_for_table.append(row)
 
-        # Készítsünk egy táblázatot az adatokból
         table = dbc.Table.from_dataframe(pd.DataFrame(data_for_table, columns=['Fejlettségi mutató'] + years), striped=True,
                                          bordered=True, hover=True)
         return table
+
+#4. feladat próbáljuk újra
+
 
 # 5. feladat
 
